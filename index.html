@@ -4,610 +4,463 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="MALLORA - Discover products from stores around the world. Shop fashion, electronics, beauty and more.">
+<meta name="description" content="MALLORA - Shop products from stores around the world.">
 <title>MALLORA | The World at Your Doorstep</title>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --gold: #d6a943;
-  --dark: #151515;
-  --muted: #777;
-  --light: #f7f7f7;
+:root{--gold:#d6a943;--dark:#151515;--muted:#777;--light:#f7f7f7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;color:var(--dark);background:white}
+a{text-decoration:none;color:inherit}
+button,input,select{font:inherit}
+.topbar{background:#151515;color:white;text-align:center;padding:10px;font-size:12px}
+header{padding:20px 6%;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;border-bottom:1px solid #eee}
+.logo{font-size:29px;font-weight:900;letter-spacing:3px}
+.logo span{color:var(--gold)}
+.search{display:flex;flex:1;max-width:500px;border:1px solid #ddd;border-radius:30px;overflow:hidden}
+.search input{flex:1;min-width:0;padding:13px 18px;border:0;outline:0}
+.search button{background:var(--gold);border:0;padding:0 22px;cursor:pointer}
+.header-links{display:flex;gap:18px;align-items:center;font-size:14px;flex-wrap:wrap}
+.header-links button{background:none;border:0;cursor:pointer;color:inherit}
+.account-btn{background:var(--gold)!important;padding:10px 15px!important;border-radius:4px;font-weight:bold}
+nav{display:flex;justify-content:center;gap:32px;padding:17px;border-bottom:1px solid #eee;font-size:14px;flex-wrap:wrap}
+nav a:hover{color:var(--gold)}
+.hero{margin:25px auto;width:90%;min-height:390px;border-radius:12px;background:linear-gradient(90deg,rgba(0,0,0,.78),rgba(0,0,0,.12)),url("https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600");background-position:center;background-size:cover;display:flex;align-items:center;padding:55px;color:white}
+.hero-content{max-width:500px}
+.hero small{color:#f2cf7b;letter-spacing:3px;font-weight:bold}
+.hero h1{font-size:clamp(36px,6vw,58px);margin:18px 0;line-height:1.1}
+.hero p{line-height:1.7;margin-bottom:25px}
+.btn{display:inline-block;background:var(--gold);color:#151515;padding:14px 27px;border-radius:4px;font-weight:bold;border:0;cursor:pointer}
+.section{padding:45px 6%}
+.section-heading{text-align:center;margin-bottom:30px}
+.section-heading h2{font-size:29px;margin-bottom:10px}
+.section-heading p{color:var(--muted)}
+.categories,.products{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.category{background:var(--light);border-radius:9px;text-align:center;padding:20px 10px;transition:.2s;cursor:pointer}
+.category:hover{transform:translateY(-4px)}
+.category h3{font-size:15px}
+.product{border:1px solid #eee;border-radius:8px;overflow:hidden;background:white}
+.product img{width:100%;height:210px;object-fit:cover;background:var(--light)}
+.product-info{padding:15px}
+.product-info h3{font-size:15px;margin-bottom:10px}
+.price{color:#a4771c;font-weight:bold;margin-bottom:12px}
+.product button{width:100%;padding:11px;background:#151515;color:white;border:0;cursor:pointer;border-radius:4px}
+.product button:hover{background:var(--gold);color:#151515}
+.empty-state{grid-column:1/-1;text-align:center;padding:35px;color:var(--muted);background:var(--light);border-radius:8px}
+.features{background:var(--light);display:grid;grid-template-columns:repeat(3,1fr);gap:25px;text-align:center}
+.feature{padding:20px}
+.feature h3{margin-bottom:10px}
+.feature p{color:var(--muted);font-size:14px;line-height:1.6}
+.vendor{background:#151515;color:white;text-align:center;padding:55px 20px}
+.vendor h2{font-size:30px;margin-bottom:15px}
+.vendor p{color:#ccc;margin-bottom:25px}
+footer{background:#101010;color:white;padding:45px 6%}
+.footer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:25px}
+footer h3{margin-bottom:15px;color:var(--gold)}
+footer a{display:block;color:#ccc;margin:10px 0;font-size:14px}
+.copyright{border-top:1px solid #333;text-align:center;margin-top:30px;padding-top:20px;color:#aaa;font-size:13px}
+.notice{position:fixed;bottom:20px;right:20px;background:#151515;color:white;padding:15px 20px;border-radius:6px;display:none;z-index:30;max-width:90%}
+.modal{display:none;position:fixed;inset:0;background:#0009;z-index:50;align-items:center;justify-content:center;padding:15px}
+.modal.show{display:flex}
+.modal-box{background:white;width:100%;max-width:430px;padding:25px;border-radius:10px;max-height:90vh;overflow:auto}
+.modal-box h2{margin-bottom:15px}
+.modal-box input,.modal-box select{width:100%;padding:13px;margin:8px 0;border:1px solid #ddd;border-radius:5px}
+.modal-box button{margin-top:10px}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+.modal-actions button{flex:1}
+.close-btn{float:right;border:0;background:none;font-size:24px;cursor:pointer}
+.form-note{font-size:13px;color:#666;line-height:1.5;margin-top:12px}
+.status-line{font-size:13px;color:#666;margin-top:10px;min-height:18px}
+@media(max-width:800px){
+.categories,.products{grid-template-columns:repeat(2,1fr)}
+.footer-grid{grid-template-columns:repeat(2,1fr)}
+.features{grid-template-columns:1fr}
+header{justify-content:center}
+.search{order:3;flex-basis:100%}
 }
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  color: var(--dark);
-  background: white;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-.topbar {
-  background: #151515;
-  color: white;
-  text-align: center;
-  padding: 10px;
-  font-size: 12px;
-}
-
-header {
-  padding: 20px 6%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  border-bottom: 1px solid #eee;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-size: 29px;
-  font-weight: 900;
-  letter-spacing: 3px;
-}
-
-.logo span {
-  color: var(--gold);
-}
-
-.search {
-  display: flex;
-  flex: 1;
-  max-width: 500px;
-  border: 1px solid #ddd;
-  border-radius: 30px;
-  overflow: hidden;
-}
-
-.search input {
-  flex: 1;
-  min-width: 0;
-  padding: 13px 18px;
-  border: none;
-  outline: none;
-}
-
-.search button {
-  background: var(--gold);
-  border: none;
-  padding: 0 22px;
-  cursor: pointer;
-}
-
-.header-links {
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
-}
-
-nav {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  padding: 17px;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-  flex-wrap: wrap;
-}
-
-nav a:hover {
-  color: var(--gold);
-}
-
-.hero {
-  margin: 25px auto;
-  width: 90%;
-  min-height: 390px;
-  border-radius: 12px;
-  background:
-    linear-gradient(90deg, rgba(0,0,0,.78), rgba(0,0,0,.12)),
-    url("https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600");
-  background-position: center;
-  background-size: cover;
-  display: flex;
-  align-items: center;
-  padding: 55px;
-  color: white;
-}
-
-.hero-content {
-  max-width: 500px;
-}
-
-.hero small {
-  color: #f2cf7b;
-  letter-spacing: 3px;
-  font-weight: bold;
-}
-
-.hero h1 {
-  font-size: clamp(36px, 6vw, 58px);
-  margin: 18px 0;
-  line-height: 1.1;
-}
-
-.hero p {
-  line-height: 1.7;
-  margin-bottom: 25px;
-}
-
-.btn {
-  display: inline-block;
-  background: var(--gold);
-  color: #151515;
-  padding: 14px 27px;
-  border-radius: 4px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-}
-
-.section {
-  padding: 45px 6%;
-}
-
-.section-heading {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.section-heading h2 {
-  font-size: 29px;
-  margin-bottom: 10px;
-}
-
-.section-heading p {
-  color: var(--muted);
-}
-
-.categories {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-}
-
-.category {
-  background: var(--light);
-  border-radius: 9px;
-  text-align: center;
-  padding-bottom: 18px;
-  overflow: hidden;
-  transition: .2s;
-}
-
-.category:hover {
-  transform: translateY(-5px);
-}
-
-.category img {
-  width: 100%;
-  height: 170px;
-  object-fit: cover;
-}
-
-.category h3 {
-  margin-top: 15px;
-  font-size: 16px;
-}
-
-.products {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-}
-
-.product {
-  border: 1px solid #eee;
-  border-radius: 8px;
-  overflow: hidden;
-  background: white;
-}
-
-.product img {
-  width: 100%;
-  height: 210px;
-  object-fit: cover;
-  background: var(--light);
-}
-
-.product-info {
-  padding: 15px;
-}
-
-.product-info h3 {
-  font-size: 15px;
-  margin-bottom: 10px;
-}
-
-.price {
-  color: #a4771c;
-  font-weight: bold;
-  margin-bottom: 12px;
-}
-
-.product button {
-  width: 100%;
-  padding: 11px;
-  background: #151515;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.product button:hover {
-  background: var(--gold);
-  color: #151515;
-}
-
-.features {
-  background: var(--light);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
-  text-align: center;
-}
-
-.feature {
-  padding: 20px;
-}
-
-.feature h3 {
-  margin-bottom: 10px;
-}
-
-.feature p {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.vendor {
-  background: #151515;
-  color: white;
-  text-align: center;
-  padding: 55px 20px;
-}
-
-.vendor h2 {
-  font-size: 30px;
-  margin-bottom: 15px;
-}
-
-.vendor p {
-  color: #ccc;
-  margin-bottom: 25px;
-}
-
-footer {
-  background: #101010;
-  color: white;
-  padding: 45px 6%;
-}
-
-.footer-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 25px;
-}
-
-footer h3 {
-  margin-bottom: 15px;
-  color: var(--gold);
-}
-
-footer a {
-  display: block;
-  color: #ccc;
-  margin: 10px 0;
-  font-size: 14px;
-}
-
-footer a:hover {
-  color: white;
-}
-
-.copyright {
-  border-top: 1px solid #333;
-  text-align: center;
-  margin-top: 30px;
-  padding-top: 20px;
-  color: #aaa;
-  font-size: 13px;
-}
-
-.cart-message {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #151515;
-  color: white;
-  padding: 15px 20px;
-  border-radius: 6px;
-  display: none;
-  z-index: 10;
-}
-
-@media(max-width: 800px) {
-  .categories, .products {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .footer-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .features {
-    grid-template-columns: 1fr;
-  }
-
-  header {
-    justify-content: center;
-  }
-
-  .search {
-    order: 3;
-    flex-basis: 100%;
-  }
-}
-
-@media(max-width: 480px) {
-  .hero {
-    padding: 30px 22px;
-    min-height: 350px;
-  }
-
-  nav {
-    gap: 16px;
-    font-size: 12px;
-  }
-
-  .categories, .products {
-    gap: 10px;
-  }
-
-  .category img {
-    height: 125px;
-  }
-
-  .product img {
-    height: 150px;
-  }
-
-  .section {
-    padding: 35px 4%;
-  }
+@media(max-width:480px){
+.hero{padding:30px 22px;min-height:350px}
+nav{gap:16px;font-size:12px}
+.categories,.products{gap:10px}
+.section{padding:35px 4%}
+.product img{height:150px}
 }
 </style>
 </head>
-
 <body>
 
-<div class="topbar">
-  DISCOVER THE WORLD OF SHOPPING WITH MALLORA
-</div>
+<div class="topbar">DISCOVER THE WORLD OF SHOPPING WITH MALLORA</div>
 
 <header>
-  <a href="#" class="logo">MALL<span>ORA</span></a>
-
-  <form class="search" id="searchForm">
-    <input id="searchInput" type="search"
-      placeholder="Search products and categories...">
-    <button type="submit">Search</button>
-  </form>
-
-  <div class="header-links">
-    <a href="#vendor">Sell with us</a>
-    <a href="#products">🛒 Cart (<span id="cartCount">0</span>)</a>
-  </div>
+<a href="#" class="logo">MALL<span>ORA</span></a>
+<form class="search" id="searchForm">
+<input id="searchInput" type="search" placeholder="Search products and categories...">
+<button type="submit">Search</button>
+</form>
+<div class="header-links">
+<a href="#vendor">Sell with us</a>
+<a href="#products">🛒 Cart (<span id="cartCount">0</span>)</a>
+<button class="account-btn" id="accountButton" onclick="openAccount()">Sign In</button>
+<button id="signOutButton" onclick="signOut()" style="display:none">Sign Out</button>
+</div>
 </header>
 
 <nav>
-  <a href="#">Home</a>
-  <a href="#categories">Categories</a>
-  <a href="#products">Products</a>
-  <a href="#features">Why MALLORA</a>
-  <a href="#vendor">Become a Seller</a>
+<a href="#">Home</a>
+<a href="#categories">Categories</a>
+<a href="#products">Products</a>
+<a href="#features">Why MALLORA</a>
+<a href="#vendor">Become a Seller</a>
 </nav>
 
 <section class="hero">
-  <div class="hero-content">
-    <small>WELCOME TO MALLORA</small>
-    <h1>The World at Your Doorstep.</h1>
-    <p>
-      Discover amazing products, explore different stores
-      and experience shopping without borders.
-    </p>
-    <a href="#products" class="btn">Explore Shopping</a>
-  </div>
+<div class="hero-content">
+<small>WELCOME TO MALLORA</small>
+<h1>The World at Your Doorstep.</h1>
+<p>Discover amazing products, explore different stores and experience shopping without borders.</p>
+<a href="#products" class="btn">Explore Shopping</a>
+</div>
 </section>
 
 <section class="section" id="categories">
-  <div class="section-heading">
-    <h2>Explore Our Categories</h2>
-    <p>Discover something special in every department.</p>
-  </div>
-
-  <div class="categories">
-    <div class="category">
-      <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500" alt="Fashion">
-      <h3>Fashion</h3>
-    </div>
-
-    <div class="category">
-      <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?w=500" alt="Electronics">
-      <h3>Electronics</h3>
-    </div>
-
-    <div class="category">
-      <img src="https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=500" alt="Beauty">
-      <h3>Beauty</h3>
-    </div>
-
-    <div class="category">
-      <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=500" alt="Home">
-      <h3>Home & Living</h3>
-    </div>
-  </div>
+<div class="section-heading">
+<h2>Explore Our Categories</h2>
+<p>Discover something special in every department.</p>
+</div>
+<div class="categories" id="categoryList">
+<div class="empty-state">Loading categories...</div>
+</div>
 </section>
 
 <section class="section" id="products">
-  <div class="section-heading">
-    <h2>Featured Products</h2>
-    <p>Explore some of the products coming to MALLORA.</p>
-  </div>
-
-  <div class="products">
-
-    <div class="product">
-      <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500" alt="Sneakers">
-      <div class="product-info">
-        <h3>Premium Sneakers</h3>
-        <p class="price">Sample product</p>
-        <button onclick="addToCart('Premium Sneakers')">Add to Cart</button>
-      </div>
-    </div>
-
-    <div class="product">
-      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500" alt="Watch">
-      <div class="product-info">
-        <h3>Classic Wristwatch</h3>
-        <p class="price">Sample product</p>
-        <button onclick="addToCart('Classic Wristwatch')">Add to Cart</button>
-      </div>
-    </div>
-
-    <div class="product">
-      <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500" alt="Headphones">
-      <div class="product-info">
-        <h3>Wireless Headphones</h3>
-        <p class="price">Sample product</p>
-        <button onclick="addToCart('Wireless Headphones')">Add to Cart</button>
-      </div>
-    </div>
-
-    <div class="product">
-      <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500" alt="Handbag">
-      <div class="product-info">
-        <h3>Luxury Handbag</h3>
-        <p class="price">Sample product</p>
-        <button onclick="addToCart('Luxury Handbag')">Add to Cart</button>
-      </div>
-    </div>
-
-  </div>
+<div class="section-heading">
+<h2>Featured Products</h2>
+<p>Discover products from MALLORA sellers around the world.</p>
+</div>
+<div class="products" id="productList">
+<div class="empty-state">Loading products...</div>
+</div>
 </section>
 
 <section class="section features" id="features">
-  <div class="feature">
-    <h3>🌍 Worldwide Marketplace</h3>
-    <p>Discover products and sellers from different countries.</p>
-  </div>
-
-  <div class="feature">
-    <h3>🏪 Multiple Stores</h3>
-    <p>Explore independent businesses in one marketplace.</p>
-  </div>
-
-  <div class="feature">
-    <h3>🔒 Secure Shopping</h3>
-    <p>Our goal is to build a safe and reliable shopping experience.</p>
-  </div>
+<div class="feature">
+<h3>🌍 Worldwide Marketplace</h3>
+<p>Discover products and sellers from different countries.</p>
+</div>
+<div class="feature">
+<h3>🏪 Multiple Stores</h3>
+<p>Explore independent businesses in one marketplace.</p>
+</div>
+<div class="feature">
+<h3>🔒 Secure Shopping</h3>
+<p>Our goal is to build a safe and reliable shopping experience.</p>
+</div>
 </section>
 
 <section class="vendor" id="vendor">
-  <h2>Own a Business?</h2>
-  <p>Bring your products to MALLORA and reach customers worldwide.</p>
-  <a href="mailto:vendors@mallora.com" class="btn">Become a Seller</a>
+<h2>Own a Business?</h2>
+<p>Bring your products to MALLORA and reach customers worldwide.</p>
+<button class="btn" onclick="openSeller()">Become a Seller</button>
 </section>
 
 <footer>
-  <div class="footer-grid">
-    <div>
-      <h3>MALLORA</h3>
-      <p>Your world of shopping, all in one place.</p>
-    </div>
-
-    <div>
-      <h3>Explore</h3>
-      <a href="#categories">Categories</a>
-      <a href="#products">Products</a>
-      <a href="#features">About Us</a>
-    </div>
-
-    <div>
-      <h3>For Sellers</h3>
-      <a href="#vendor">Become a Seller</a>
-      <a href="mailto:vendors@mallora.com">Seller Support</a>
-    </div>
-
-    <div>
-      <h3>Customer Service</h3>
-      <a href="mailto:support@mallora.com">Contact Us</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms & Conditions</a>
-    </div>
-  </div>
-
-  <div class="copyright">
-    © 2026 MALLORA. All rights reserved.
-  </div>
+<div class="footer-grid">
+<div><h3>MALLORA</h3><p>Your world of shopping, all in one place.</p></div>
+<div><h3>Explore</h3><a href="#categories">Categories</a><a href="#products">Products</a><a href="#features">About Us</a></div>
+<div><h3>For Sellers</h3><a href="#vendor">Become a Seller</a></div>
+<div><h3>Customer Service</h3><a href="mailto:support@mallora.com">Contact Us</a></div>
+</div>
+<div class="copyright">© 2026 MALLORA. All rights reserved.</div>
 </footer>
 
-<div class="cart-message" id="cartMessage"></div>
+<div class="notice" id="notice"></div>
+
+<!-- Account modal -->
+<div class="modal" id="accountModal">
+<div class="modal-box">
+<button class="close-btn" onclick="closeModal('accountModal')">&times;</button>
+<h2 id="accountTitle">Welcome to MALLORA</h2>
+<form id="accountForm">
+<input id="fullName" type="text" placeholder="Full name" autocomplete="name">
+<input id="country" type="text" placeholder="Country">
+<input id="email" type="email" placeholder="Email address" autocomplete="email" required>
+<input id="password" type="password" placeholder="Password (at least 6 characters)" autocomplete="current-password" required minlength="6">
+<div class="modal-actions">
+<button class="btn" type="submit" id="accountSubmit">Sign In</button>
+</div>
+</form>
+<p class="form-note" id="accountSwitch">New to MALLORA? <a href="#" onclick="setAccountMode('signup');return false;">Create an account</a></p>
+<p class="status-line" id="accountStatus"></p>
+</div>
+</div>
+
+<!-- Seller application modal -->
+<div class="modal" id="sellerModal">
+<div class="modal-box">
+<button class="close-btn" onclick="closeModal('sellerModal')">&times;</button>
+<h2>Open your MALLORA store</h2>
+<p class="form-note">Sign in first, then submit your store for approval.</p>
+<form id="sellerForm">
+<input id="storeName" type="text" placeholder="Store name" required>
+<input id="storeCountry" type="text" placeholder="Store country" required>
+<input id="storeDescription" type="text" placeholder="Short description">
+<button class="btn" type="submit">Submit store application</button>
+</form>
+<p class="status-line" id="sellerStatus"></p>
+</div>
+</div>
 
 <script>
+const SUPABASE_URL = "https://njyrphzewgtybtxxkvwk.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EmUH_iUEsDdR5e8mwUZuRQ_xXnMoSsh";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+let currentUser = null;
+let accountMode = "signin";
 let cartCount = 0;
+let loadedProducts = [];
 
-function addToCart(product) {
-  cartCount++;
-  document.getElementById("cartCount").textContent = cartCount;
-
-  const message = document.getElementById("cartMessage");
-  message.textContent = product + " added to your demo cart!";
-  message.style.display = "block";
-
-  setTimeout(() => {
-    message.style.display = "none";
-  }, 2500);
+function showNotice(message) {
+  const notice = document.getElementById("notice");
+  notice.textContent = message;
+  notice.style.display = "block";
+  setTimeout(() => notice.style.display = "none", 3500);
 }
 
-document.getElementById("searchForm").addEventListener("submit", function(e) {
-  e.preventDefault();
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[char]);
+}
 
-  const query = document.getElementById("searchInput").value.trim();
+function closeModal(id) {
+  document.getElementById(id).classList.remove("show");
+}
 
-  if (!query) {
-    alert("Please enter a product to search.");
+function openAccount() {
+  if (currentUser) {
+    showNotice("You are signed in as " + currentUser.email);
+    return;
+  }
+  setAccountMode("signin");
+  document.getElementById("accountModal").classList.add("show");
+}
+
+function setAccountMode(mode) {
+  accountMode = mode;
+  const signup = mode === "signup";
+  document.getElementById("accountTitle").textContent = signup ? "Create your MALLORA account" : "Welcome back";
+  document.getElementById("accountSubmit").textContent = signup ? "Create Account" : "Sign In";
+  document.getElementById("fullName").style.display = signup ? "block" : "none";
+  document.getElementById("country").style.display = signup ? "block" : "none";
+  document.getElementById("accountSwitch").innerHTML = signup
+    ? 'Already registered? <a href="#" onclick="setAccountMode(\\'signin\\');return false;">Sign in</a>'
+    : 'New to MALLORA? <a href="#" onclick="setAccountMode(\\'signup\\');return false;">Create an account</a>';
+  document.getElementById("accountStatus").textContent = "";
+}
+
+document.getElementById("accountForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const status = document.getElementById("accountStatus");
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const submit = document.getElementById("accountSubmit");
+  submit.disabled = true;
+  status.textContent = "Please wait...";
+
+  try {
+    if (accountMode === "signup") {
+      const fullName = document.getElementById("fullName").value.trim();
+      const country = document.getElementById("country").value.trim();
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName, country: country }
+        }
+      });
+      if (error) throw error;
+
+      if (data.session) {
+        showNotice("Your MALLORA account has been created.");
+        closeModal("accountModal");
+      } else {
+        status.textContent = "Registration received. Check your email to confirm your account, then sign in.";
+      }
+    } else {
+      const { error } = await supabaseClient.auth.signInWithPassword({email,password});
+      if (error) throw error;
+      closeModal("accountModal");
+      showNotice("You are now signed in.");
+    }
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    submit.disabled = false;
+  }
+});
+
+async function signOut() {
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) showNotice(error.message);
+  else showNotice("You have signed out.");
+}
+
+function updateAccountUI(user) {
+  currentUser = user;
+  document.getElementById("accountButton").textContent = user
+    ? (user.email.length > 20 ? "My Account" : user.email)
+    : "Sign In";
+  document.getElementById("signOutButton").style.display = user ? "inline-block" : "none";
+}
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  updateAccountUI(session?.user ?? null);
+});
+
+async function loadCategories() {
+  const container = document.getElementById("categoryList");
+  const { data, error } = await supabaseClient
+    .from("categories")
+    .select("id,name")
+    .order("name");
+
+  if (error) {
+    container.innerHTML = '<div class="empty-state">Could not load categories. Please refresh the page.</div>';
+    console.error(error);
     return;
   }
 
-  const products = document.querySelectorAll(".product");
-  let found = false;
+  container.innerHTML = data.length
+    ? data.map(category => `
+      <div class="category" onclick="filterCategory('${category.id}')">
+        <h3>${escapeHTML(category.name)}</h3>
+      </div>`).join("")
+    : '<div class="empty-state">Categories will appear here soon.</div>';
+}
 
-  products.forEach(product => {
-    const match = product.textContent.toLowerCase().includes(query.toLowerCase());
-    product.style.display = match ? "block" : "none";
-    if (match) found = true;
-  });
+async function loadProducts() {
+  const container = document.getElementById("productList");
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("id,name,description,price,currency,image_url,category_id,stores(store_name,country)")
+    .eq("status", "published")
+    .order("created_at", {ascending:false});
 
-  document.getElementById("products").scrollIntoView({behavior: "smooth"});
-
-  if (!found) {
-    alert("No matching demo products found. Our full marketplace search is coming soon.");
+  if (error) {
+    container.innerHTML = '<div class="empty-state">Products could not be loaded. Please refresh the page.</div>';
+    console.error(error);
+    return;
   }
-});
-</script>
 
+  loadedProducts = data || [];
+  renderProducts(loadedProducts);
+}
+
+function renderProducts(products) {
+  const container = document.getElementById("productList");
+  if (!products.length) {
+    container.innerHTML = '<div class="empty-state">No products are available yet. Check back soon as MALLORA sellers add their products.</div>';
+    return;
+  }
+
+  container.innerHTML = products.map(product => {
+    const image = product.image_url
+      ? escapeHTML(product.image_url)
+      : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
+    return `
+      <div class="product">
+        <img src="${image}" alt="${escapeHTML(product.name)}" loading="lazy">
+        <div class="product-info">
+          <h3>${escapeHTML(product.name)}</h3>
+          <p class="price">${escapeHTML(product.currency)} ${Number(product.price).toLocaleString()}</p>
+          <p class="form-note">${escapeHTML(product.stores?.store_name || "MALLORA seller")}</p>
+          <button onclick="addToCart('${product.id}')">Add to Cart</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function filterCategory(categoryId) {
+  const matches = loadedProducts.filter(product => product.category_id === categoryId);
+  renderProducts(matches);
+  document.getElementById("products").scrollIntoView({behavior:"smooth"});
+}
+
+document.getElementById("searchForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const query = document.getElementById("searchInput").value.trim().toLowerCase();
+  if (!query) {
+    renderProducts(loadedProducts);
+    return;
+  }
+  const matches = loadedProducts.filter(product =>
+    (product.name || "").toLowerCase().includes(query) ||
+    (product.description || "").toLowerCase().includes(query)
+  );
+  renderProducts(matches);
+  document.getElementById("products").scrollIntoView({behavior:"smooth"});
+});
+
+function addToCart(productId) {
+  cartCount++;
+  document.getElementById("cartCount").textContent = cartCount;
+  showNotice("Added to your demo cart. Checkout is not enabled yet.");
+}
+
+function openSeller() {
+  if (!currentUser) {
+    openAccount();
+    showNotice("Please sign in or create an account before applying as a seller.");
+    return;
+  }
+  document.getElementById("sellerStatus").textContent = "";
+  document.getElementById("sellerModal").classList.add("show");
+}
+
+document.getElementById("sellerForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!currentUser) {
+    showNotice("Please sign in first.");
+    closeModal("sellerModal");
+    openAccount();
+    return;
+  }
+
+  const status = document.getElementById("sellerStatus");
+  const store = {
+    owner_id: currentUser.id,
+    store_name: document.getElementById("storeName").value.trim(),
+    country: document.getElementById("storeCountry").value.trim(),
+    description: document.getElementById("storeDescription").value.trim(),
+    status: "pending"
+  };
+
+  status.textContent = "Submitting your application...";
+  const { error } = await supabaseClient.from("stores").insert(store);
+
+  if (error) {
+    status.textContent = error.message;
+    return;
+  }
+
+  status.textContent = "Application submitted. Your store is pending MALLORA approval.";
+  showNotice("Seller application submitted.");
+  document.getElementById("sellerForm").reset();
+});
+
+async function initializeMallora() {
+  const { data } = await supabaseClient.auth.getSession();
+  updateAccountUI(data.session?.user ?? null);
+  await Promise.all([loadCategories(), loadProducts()]);
+}
+
+initializeMallora();
+</script>
 </body>
 </html>
