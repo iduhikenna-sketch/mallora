@@ -22,9 +22,9 @@
     .panel{background:white;padding:22px;border-radius:12px;margin-bottom:22px;box-shadow:0 3px 14px #152c5010}
     h1,h2,h3{margin-top:0}
     input,textarea,select{width:100%;padding:12px;border:1px solid #d6dce6;border-radius:7px;margin:7px 0 15px;font:inherit;background:white}
+    input[type=file]{padding:10px;background:#f8faff}
     textarea{min-height:90px;resize:vertical}
     label{font-weight:600;font-size:14px}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
     .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
     .stat{background:white;padding:20px;border-radius:10px;box-shadow:0 3px 14px #152c5010}
     .stat strong{display:block;font-size:27px;margin-top:8px;color:#1769d2}
@@ -40,10 +40,15 @@
     .error{background:#ffe8e8;color:#a21d1d}
     .notice{background:#e7f5ec;color:#17643a}
     .top-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .product-image{width:48px;height:48px;object-fit:cover;border-radius:6px;background:#eee}
-    .hint{font-size:13px;color:#65748a;margin-top:-8px}
+    .product-image{width:52px;height:52px;object-fit:cover;border-radius:6px;background:#eee}
+    .hint{font-size:13px;color:#65748a;margin:0 0 12px}
+    .photo-preview-wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:4px 0 15px}
+    .photo-preview{width:125px;height:125px;object-fit:contain;border:1px solid #d6dce6;border-radius:9px;background:#f7f9fc}
+    .photo-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .check-line{display:flex;align-items:center;gap:8px;font-size:13px;color:#526176;margin:4px 0 15px}
+    .check-line input{width:auto;margin:0}
     @media(max-width:700px){
-      .grid,.stats{grid-template-columns:1fr}
+      .stats{grid-template-columns:1fr}
       .form-grid{grid-template-columns:1fr}
       .full{grid-column:auto}
       .panel{padding:16px}
@@ -145,9 +150,28 @@
           </div>
 
           <div class="full">
-            <label>Product Image URL</label>
+            <label for="productPhoto">Product Photo</label>
+            <input id="productPhoto" type="file" accept="image/png,image/jpeg,image/webp">
+            <p class="hint">Choose a photo from your phone gallery. JPG, PNG or WEBP; maximum size 5 MB.</p>
+
+            <div class="photo-preview-wrap">
+              <img id="photoPreview" class="photo-preview hidden" alt="Selected product photo preview">
+              <div class="photo-actions">
+                <button type="button" id="removePhotoBtn" class="muted hidden">Remove Photo</button>
+                <span id="photoStatus" class="hint">No new photo selected.</span>
+              </div>
+            </div>
+
+            <label class="check-line" id="clearPhotoLine" style="display:none">
+              <input type="checkbox" id="clearExistingPhoto">
+              Remove the current product photo when saving
+            </label>
+          </div>
+
+          <div class="full">
+            <label>Or use an Image URL (optional)</label>
             <input id="productImage" type="url" placeholder="https://example.com/product-image.jpg">
-            <p class="hint">Paste a publicly accessible image link. Image uploading can be added later.</p>
+            <p class="hint">You can upload from your phone above, or paste a publicly accessible image link here.</p>
           </div>
         </div>
 
@@ -179,15 +203,18 @@
 <script>
   const SUPABASE_URL = "https://njyrphzewgtybtxxkvwk.supabase.co";
   const SUPABASE_KEY = "sb_publishable_EmUH_iUEsDdR5e8mwUZuRQ_xXnMoSsh";
-
-  // Existing Ikenna Global Store record
   const STORE_ID = "3f99b588-709a-4194-904d-2ca0bdea5fae";
+  const STORAGE_BUCKET = "product-images";
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let currentUser = null;
   let categories = [];
   let products = [];
+  let selectedPhoto = null;
+  let previewObjectUrl = null;
+  let currentProductImageUrl = null;
 
   const $ = id => document.getElementById(id);
 
@@ -215,6 +242,125 @@
     });
   }
 
+  function revokePreviewUrl() {
+    if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
+  }
+
+  function displayPhotoPreview(url, statusText) {
+    const preview = $("photoPreview");
+
+    if (url) {
+      preview.src = url;
+      preview.classList.remove("hidden");
+    } else {
+      preview.removeAttribute("src");
+      preview.classList.add("hidden");
+    }
+
+    $("photoStatus").textContent = statusText;
+    $("removePhotoBtn").classList.toggle("hidden", !url);
+  }
+
+  function clearNewPhotoSelection() {
+    selectedPhoto = null;
+    $("productPhoto").value = "";
+    revokePreviewUrl();
+
+    if (currentProductImageUrl && !$("clearExistingPhoto").checked) {
+      displayPhotoPreview(currentProductImageUrl, "Current product photo");
+    } else {
+      displayPhotoPreview("", "No photo selected.");
+    }
+  }
+
+  $("productPhoto").addEventListener("change", () => {
+    hideMessage("productMessage");
+
+    const file = $("productPhoto").files[0];
+
+    if (!file) {
+      clearNewPhotoSelection();
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+      $("productPhoto").value = "";
+      selectedPhoto = null;
+      showMessage("productMessage", "Choose a JPG, PNG or WEBP image.", true);
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      $("productPhoto").value = "";
+      selectedPhoto = null;
+      showMessage("productMessage", "That photo is larger than 5 MB. Choose a smaller image.", true);
+      return;
+    }
+
+    selectedPhoto = file;
+    revokePreviewUrl();
+    previewObjectUrl = URL.createObjectURL(file);
+    $("clearExistingPhoto").checked = false;
+
+    displayPhotoPreview(previewObjectUrl, file.name + " — ready to upload");
+  });
+
+  $("removePhotoBtn").addEventListener("click", () => {
+    if (selectedPhoto) {
+      clearNewPhotoSelection();
+      return;
+    }
+
+    if (currentProductImageUrl) {
+      $("clearExistingPhoto").checked = true;
+      $("productImage").value = "";
+      displayPhotoPreview("", "Current photo will be removed when you save.");
+    }
+  });
+
+  $("clearExistingPhoto").addEventListener("change", () => {
+    if ($("clearExistingPhoto").checked) {
+      selectedPhoto = null;
+      $("productPhoto").value = "";
+      $("productImage").value = "";
+      revokePreviewUrl();
+      displayPhotoPreview("", "Current photo will be removed when you save.");
+    } else if (currentProductImageUrl) {
+      $("productImage").value = currentProductImageUrl;
+      displayPhotoPreview(currentProductImageUrl, "Current product photo");
+    }
+  });
+
+  async function uploadProductPhoto(file) {
+    const extension = file.type === "image/png" ? "png" :
+      file.type === "image/webp" ? "webp" : "jpg";
+
+    const filePath = STORE_ID + "/" + crypto.randomUUID() + "." + extension;
+
+    const { error: uploadError } = await db.storage
+      .from(STORAGE_BUCKET)
+      .upload(filePath, file, {
+        contentType: file.type,
+        cacheControl: "3600",
+        upsert: false
+      });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = db.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(filePath);
+
+    if (!data || !data.publicUrl) {
+      throw new Error("The photo uploaded, but its public URL could not be created.");
+    }
+
+    return data.publicUrl;
+  }
+
   async function checkAdmin() {
     const { data, error } = await db.auth.getUser();
 
@@ -231,6 +377,7 @@
     }
 
     currentUser = data.user;
+
     $("loginPanel").classList.add("hidden");
     $("dashboard").classList.remove("hidden");
     $("logoutBtn").classList.remove("hidden");
@@ -288,6 +435,7 @@
     }
 
     const rows = data || [];
+
     $("totalStores").textContent = rows.length;
     $("pendingStores").textContent = rows.filter(x => x.status === "pending").length;
     $("activeStores").textContent = rows.filter(x => x.status === "active").length;
@@ -326,6 +474,7 @@
     if (!button) return;
 
     button.disabled = true;
+
     const { error } = await db.from("stores")
       .update({ status: button.dataset.status })
       .eq("id", button.dataset.store);
@@ -351,6 +500,7 @@
     }
 
     categories = data || [];
+
     $("productCategory").innerHTML =
       `<option value="">Choose a category</option>` +
       categories.map(category =>
@@ -370,6 +520,7 @@
     if (error) {
       $("productsTable").innerHTML =
         `<tr><td colspan="7">Could not load products.</td></tr>`;
+
       showMessage("productMessage", "Product loading failed: " + error.message, true);
       return;
     }
@@ -384,8 +535,9 @@
 
     $("productsTable").innerHTML = products.map(product => {
       const category = categories.find(c => c.id === product.category_id);
+
       const image = product.image_url
-        ? `<img class="product-image" src="${escapeHTML(product.image_url)}" alt="" onerror="this.style.display='none'">`
+        ? `<img class="product-image" src="${escapeHTML(product.image_url)}" alt="${escapeHTML(product.name)}" onerror="this.style.display='none'">`
         : "—";
 
       return `<tr>
@@ -411,6 +563,16 @@
     $("productId").value = "";
     $("productStock").value = 0;
     $("productStatus").value = "draft";
+    $("productImage").value = "";
+
+    selectedPhoto = null;
+    currentProductImageUrl = null;
+    $("clearExistingPhoto").checked = false;
+    $("clearPhotoLine").style.display = "none";
+
+    revokePreviewUrl();
+    displayPhotoPreview("", "No new photo selected.");
+
     $("saveProductBtn").textContent = "Add Product";
     $("cancelEditBtn").classList.add("hidden");
   }
@@ -437,48 +599,75 @@
       return;
     }
 
-    const payload = {
-      store_id: STORE_ID,
-      category_id: categoryId,
-      name,
-      description: $("productDescription").value.trim(),
-      price,
-      currency: "NGN",
-      stock,
-      image_url: $("productImage").value.trim() || null,
-      status: $("productStatus").value
-    };
-
     const productId = $("productId").value;
     const button = $("saveProductBtn");
+
     button.disabled = true;
-    button.textContent = productId ? "Saving changes..." : "Adding product...";
+    button.textContent = selectedPhoto
+      ? "Uploading photo..."
+      : (productId ? "Saving changes..." : "Adding product...");
 
-    let result;
+    try {
+      let imageUrl = currentProductImageUrl;
 
-    if (productId) {
-      result = await db.from("products")
-        .update(payload)
-        .eq("id", productId)
-        .eq("store_id", STORE_ID);
-    } else {
-      result = await db.from("products").insert(payload);
+      if ($("clearExistingPhoto").checked) {
+        imageUrl = null;
+      }
+
+      const pastedUrl = $("productImage").value.trim();
+
+      if (pastedUrl) {
+        imageUrl = pastedUrl;
+      }
+
+      if (selectedPhoto) {
+        imageUrl = await uploadProductPhoto(selectedPhoto);
+      }
+
+      const payload = {
+        store_id: STORE_ID,
+        category_id: categoryId,
+        name,
+        description: $("productDescription").value.trim(),
+        price,
+        currency: "NGN",
+        stock,
+        image_url: imageUrl,
+        status: $("productStatus").value
+      };
+
+      button.textContent = productId ? "Saving product..." : "Adding product...";
+
+      let result;
+
+      if (productId) {
+        result = await db.from("products")
+          .update(payload)
+          .eq("id", productId)
+          .eq("store_id", STORE_ID);
+      } else {
+        result = await db.from("products").insert(payload);
+      }
+
+      if (result.error) throw result.error;
+
+      showMessage("productMessage", productId
+        ? "Product updated successfully."
+        : "Product added successfully.");
+
+      resetProductForm();
+      await loadProducts();
+
+    } catch (error) {
+      showMessage(
+        "productMessage",
+        "Could not save product: " + (error.message || "Unknown error"),
+        true
+      );
+    } finally {
+      button.disabled = false;
+      button.textContent = $("productId").value ? "Save Changes" : "Add Product";
     }
-
-    button.disabled = false;
-    button.textContent = productId ? "Save Changes" : "Add Product";
-
-    if (result.error) {
-      showMessage("productMessage", "Could not save product: " + result.error.message, true);
-      return;
-    }
-
-    showMessage("productMessage", productId
-      ? "Product updated successfully."
-      : "Product added successfully.");
-
-    resetProductForm();
-    await loadProducts();
   });
 
   $("productsTable").addEventListener("click", async event => {
@@ -490,14 +679,24 @@
       const product = products.find(p => p.id === editButton.dataset.edit);
       if (!product) return;
 
+      resetProductForm();
+
       $("productId").value = product.id;
       $("productName").value = product.name || "";
       $("productDescription").value = product.description || "";
       $("productPrice").value = product.price;
       $("productStock").value = product.stock;
       $("productCategory").value = product.category_id || "";
-      $("productImage").value = product.image_url || "";
       $("productStatus").value = product.status;
+
+      currentProductImageUrl = product.image_url || null;
+      $("productImage").value = product.image_url || "";
+
+      $("clearPhotoLine").style.display = currentProductImageUrl ? "flex" : "none";
+
+      if (currentProductImageUrl) {
+        displayPhotoPreview(currentProductImageUrl, "Current product photo");
+      }
 
       $("saveProductBtn").textContent = "Save Changes";
       $("cancelEditBtn").classList.remove("hidden");
@@ -506,21 +705,20 @@
     }
 
     if (toggleButton) {
-      const productId = toggleButton.dataset.toggle;
-      const nextStatus = toggleButton.dataset.next;
-
       toggleButton.disabled = true;
+
       const { error } = await db.from("products")
-        .update({ status: nextStatus })
-        .eq("id", productId)
+        .update({ status: toggleButton.dataset.next })
+        .eq("id", toggleButton.dataset.toggle)
         .eq("store_id", STORE_ID);
 
       if (error) {
         showMessage("productMessage", "Status update failed: " + error.message, true);
       } else {
-        showMessage("productMessage", "Product status changed to " + nextStatus + ".");
+        showMessage("productMessage", "Product status changed to " + toggleButton.dataset.next + ".");
         await loadProducts();
       }
+
       return;
     }
 
@@ -531,6 +729,7 @@
       if (!confirm(`Delete "${product.name}" permanently? This cannot be undone.`)) return;
 
       deleteButton.disabled = true;
+
       const { error } = await db.from("products")
         .delete()
         .eq("id", product.id)
@@ -540,14 +739,20 @@
         showMessage("productMessage", "Delete failed: " + error.message, true);
       } else {
         showMessage("productMessage", "Product deleted successfully.");
-        resetProductForm();
+
+        if ($("productId").value === product.id) {
+          resetProductForm();
+        }
+
         await loadProducts();
       }
     }
   });
 
   db.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_OUT" || !session) showLogin();
+    if (event === "SIGNED_OUT" || !session) {
+      showLogin();
+    }
   });
 
   checkAdmin();
