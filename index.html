@@ -2,977 +2,770 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="MALLORA - The World at Your Doorstep.">
-<title>MALLORA | The World at Your Doorstep</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-:root {
-  --gold:#d6a943;
-  --dark:#151515;
-  --muted:#777;
-  --light:#f7f7f7;
-  --cream:#FFF8E7;
-}
-
-*{margin:0;padding:0;box-sizing:border-box}
-
-body{
-  font-family:Arial,sans-serif;
-  color:var(--dark);
-  background:var(--cream);
-}
-
-a{text-decoration:none;color:inherit}
-button,input{font:inherit}
-button{cursor:pointer}
-
-.topbar{
-  background:#151515;
-  color:white;
-  text-align:center;
-  padding:10px;
-  font-size:12px;
-}
-
-header{
-  padding:20px 6%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-  flex-wrap:wrap;
-  border-bottom:1px solid #eee;
-  background:#FFFFFF;
-}
-
-.logo{
-  font-size:29px;
-  font-weight:900;
-  letter-spacing:3px;
-}
-
-.logo span{color:var(--gold)}
-
-.search{
-  display:flex;
-  flex:1;
-  max-width:500px;
-  border:1px solid #ddd;
-  border-radius:30px;
-  overflow:hidden;
-}
-
-.search input{
-  flex:1;
-  min-width:0;
-  padding:13px 18px;
-  border:0;
-  outline:0;
-}
-
-.search button{
-  background:var(--gold);
-  border:0;
-  padding:0 22px;
-}
-
-.header-links{
-  display:flex;
-  gap:15px;
-  align-items:center;
-  flex-wrap:wrap;
-  font-size:14px;
-}
-
-.header-links button{border:0;background:none}
-
-.account-btn{
-  background:var(--gold)!important;
-  padding:11px 16px!important;
-  border-radius:4px;
-  font-weight:bold;
-}
-
-nav{
-  display:flex;
-  justify-content:center;
-  gap:30px;
-  padding:17px;
-  border-bottom:1px solid #eee;
-  font-size:14px;
-  flex-wrap:wrap;
-  background:#FFFFFF;
-}
-
-nav a:hover{color:var(--gold)}
-
-.hero{
-  margin:25px auto;
-  width:90%;
-  min-height:390px;
-  border-radius:12px;
-  background:linear-gradient(90deg,rgba(0,0,0,.78),rgba(0,0,0,.12)),url("https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600");
-  background-position:center;
-  background-size:cover;
-  display:flex;
-  align-items:center;
-  padding:55px;
-  color:white;
-}
-
-.hero-content{max-width:500px}
-
-.hero small{
-  color:#f2cf7b;
-  letter-spacing:3px;
-  font-weight:bold;
-}
-
-.hero h1{
-  font-size:clamp(36px,6vw,58px);
-  margin:18px 0;
-  line-height:1.1;
-}
-
-.hero p{
-  line-height:1.7;
-  margin-bottom:25px;
-}
-
-.btn{
-  display:inline-block;
-  background:var(--gold);
-  color:#151515;
-  padding:14px 27px;
-  border-radius:4px;
-  font-weight:bold;
-  border:0;
-}
-
-.section{
-  padding:45px 6%;
-  background:var(--cream);
-}
-
-.section-heading{
-  text-align:center;
-  margin-bottom:30px;
-}
-
-.section-heading h2{
-  font-size:29px;
-  margin-bottom:10px;
-  color:#151515;
-}
-
-.section-heading p{color:var(--muted)}
-
-.categories,.products{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-}
-
-/* WHITE CATEGORY BUTTONS */
-.category{
-  background:#FFFFFF;
-  border-radius:9px;
-  text-align:center;
-  padding:22px 10px;
-  cursor:pointer;
-  transition:.2s;
-  border:1px solid #eee;
-  color:#151515;
-}
-
-.category:hover{
-  transform:translateY(-4px);
-  background:#FFFFFF;
-}
-
-.category h3{font-size:15px;color:#151515}
-
-/* WHITE PRODUCT CARDS */
-.product{
-  border:1px solid #eee;
-  border-radius:8px;
-  overflow:hidden;
-  background:#FFFFFF;
-  color:#151515;
-}
-
-.product img{
-  width:100%;
-  height:210px;
-  object-fit:cover;
-  background:var(--light);
-}
-
-.product-info{padding:15px}
-
-.product-info h3{
-  font-size:15px;
-  margin-bottom:10px;
-  color:#151515;
-}
-
-.price{
-  color:#a4771c;
-  font-weight:bold;
-  margin-bottom:12px;
-}
-
-.product button{
-  width:100%;
-  padding:11px;
-  background:#151515;
-  color:white;
-  border:0;
-  border-radius:4px;
-}
-
-.empty-state{
-  grid-column:1/-1;
-  text-align:center;
-  padding:35px;
-  color:var(--muted);
-  background:#FFFFFF;
-  border-radius:8px;
-}
-
-.features{
-  background:var(--cream);
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:25px;
-  text-align:center;
-}
-
-.feature{padding:20px}
-
-.feature h3{
-  margin-bottom:10px;
-  color:#151515;
-}
-
-.feature p{
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.6;
-}
-
-.vendor{
-  background:#151515;
-  color:white;
-  text-align:center;
-  padding:55px 20px;
-}
-
-.vendor h2{
-  font-size:30px;
-  margin-bottom:15px;
-}
-
-.vendor p{
-  color:#ccc;
-  margin-bottom:25px;
-}
-
-footer{
-  background:#101010;
-  color:white;
-  padding:45px 6%;
-}
-
-.footer-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:25px;
-}
-
-footer h3{
-  margin-bottom:15px;
-  color:var(--gold);
-}
-
-footer a{
-  display:block;
-  color:#ccc;
-  margin:10px 0;
-  font-size:14px;
-}
-
-.copyright{
-  border-top:1px solid #333;
-  text-align:center;
-  margin-top:30px;
-  padding-top:20px;
-  color:#aaa;
-  font-size:13px;
-}
-
-.notice{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:#151515;
-  color:white;
-  padding:15px 20px;
-  border-radius:6px;
-  display:none;
-  z-index:100;
-  max-width:90%;
-}
-
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.7);
-  z-index:90;
-  align-items:center;
-  justify-content:center;
-  padding:15px;
-}
-
-.modal.show{display:flex}
-
-.modal-box{
-  background:white;
-  width:100%;
-  max-width:430px;
-  padding:25px;
-  border-radius:10px;
-  max-height:90vh;
-  overflow:auto;
-}
-
-.modal-box h2{margin-bottom:15px}
-
-.modal-box input{
-  display:block;
-  width:100%;
-  padding:13px;
-  margin:9px 0;
-  border:1px solid #ddd;
-  border-radius:5px;
-}
-
-.modal-box .btn{
-  width:100%;
-  margin-top:12px;
-}
-
-.close-btn{
-  float:right;
-  border:0;
-  background:none;
-  font-size:27px;
-  line-height:1;
-}
-
-.modal-note{
-  font-size:13px;
-  color:#666;
-  line-height:1.5;
-  margin-top:15px;
-}
-
-.modal-note a{
-  color:#9a701d;
-  text-decoration:underline;
-  font-weight:bold;
-}
-
-.status{
-  font-size:13px;
-  color:#555;
-  margin-top:12px;
-  line-height:1.5;
-  overflow-wrap:anywhere;
-}
-
-@media(max-width:800px){
-  .categories,.products{grid-template-columns:repeat(2,1fr)}
-  .footer-grid{grid-template-columns:repeat(2,1fr)}
-  .features{grid-template-columns:1fr}
-  header{justify-content:center}
-  .search{order:3;flex-basis:100%}
-}
-
-@media(max-width:480px){
-  .hero{padding:30px 22px;min-height:350px}
-  nav{gap:16px;font-size:12px}
-  .section{padding:35px 4%}
-  .product img{height:150px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MALLORA Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:#f4f6fa;color:#182235}
+    header{background:#142b50;color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    header h2{margin:0;letter-spacing:1px}
+    button{border:0;border-radius:7px;padding:11px 15px;cursor:pointer;font-weight:600}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .primary{background:#1769d2;color:white}
+    .dark{background:#142b50;color:white}
+    .danger{background:#dc3545;color:white}
+    .muted{background:#e8edf5;color:#24344d}
+    .success{background:#16834a;color:white}
+    main{max-width:1150px;margin:25px auto;padding:0 16px}
+    .panel{background:white;padding:22px;border-radius:12px;margin-bottom:22px;box-shadow:0 3px 14px #152c5010}
+    h1,h2,h3{margin-top:0}
+    input,textarea,select{width:100%;padding:12px;border:1px solid #d6dce6;border-radius:7px;margin:7px 0 15px;font:inherit;background:white}
+    input[type=file]{padding:10px;background:#f8faff}
+    textarea{min-height:90px;resize:vertical}
+    label{font-weight:600;font-size:14px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+    .stat{background:white;padding:20px;border-radius:10px;box-shadow:0 3px 14px #152c5010}
+    .stat strong{display:block;font-size:27px;margin-top:8px;color:#1769d2}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+    .full{grid-column:1/-1}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:650px}
+    th,td{text-align:left;padding:13px 10px;border-bottom:1px solid #e9edf3;font-size:14px}
+    th{background:#f7f9fc}
+    td button{margin:3px;padding:8px 10px;font-size:12px}
+    .hidden{display:none!important}
+    .message{padding:12px;border-radius:7px;margin:12px 0;display:none}
+    .error{background:#ffe8e8;color:#a21d1d}
+    .notice{background:#e7f5ec;color:#17643a}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .store-link{display:inline-block;background:#e8edf5;color:#24344d;text-decoration:none;border-radius:7px;padding:11px 15px;font-weight:600;font-size:14px}
+    .store-link:hover{background:#dbe3ef}
+    .bottom-store-link{max-width:1150px;margin:0 auto 30px;padding:0 16px;text-align:center}
+    .product-image{width:52px;height:52px;object-fit:cover;border-radius:6px;background:#eee}
+    .hint{font-size:13px;color:#65748a;margin:0 0 12px}
+    .photo-preview-wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:4px 0 15px}
+    .photo-preview{width:125px;height:125px;object-fit:contain;border:1px solid #d6dce6;border-radius:9px;background:#f7f9fc}
+    .photo-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .check-line{display:flex;align-items:center;gap:8px;font-size:13px;color:#526176;margin:4px 0 15px}
+    .check-line input{width:auto;margin:0}
+    @media(max-width:700px){
+      .stats{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+      .full{grid-column:auto}
+      .panel{padding:16px}
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="topbar">DISCOVER THE WORLD OF SHOPPING WITH MALLORA</div>
-
 <header>
-<a href="#" class="logo">MALL<span>ORA</span></a>
-
-<form class="search" id="searchForm">
-<input id="searchInput" type="search" placeholder="Search products...">
-<button type="submit">Search</button>
-</form>
-
-<div class="header-links">
-<a href="#vendor">Sell with us</a>
-<a href="#products">🛒 Cart (<span id="cartCount">0</span>)</a>
-<button class="account-btn" id="accountButton" type="button">Sign In</button>
-<button id="signOutButton" type="button" hidden>Sign Out</button>
-</div>
+  <h2>MALLORA ADMIN</h2>
+  <div class="top-actions">
+    <a class="store-link" href="index.html">Back to Main Page</a>
+    <button id="logoutBtn" class="muted hidden">Sign Out</button>
+  </div>
 </header>
 
-<nav>
-<a href="#">Home</a>
-<a href="#categories">Categories</a>
-<a href="#products">Products</a>
-<a href="#features">Why MALLORA</a>
-<a href="#vendor">Become a Seller</a>
-</nav>
+<main>
+  <section id="loginPanel" class="panel" style="max-width:430px;margin:55px auto">
+    <h2>Admin Login</h2>
+    <p>Sign in with your MALLORA administrator account.</p>
+    <div id="loginMessage" class="message error"></div>
+    <form id="loginForm">
+      <label>Email Address</label>
+      <input id="email" type="email" required autocomplete="username">
+      <label>Password</label>
+      <input id="password" type="password" required autocomplete="current-password">
+      <button class="primary" type="submit" style="width:100%">Sign In</button>
+    </form>
+  </section>
 
-<section class="hero">
-<div class="hero-content">
-<small>WELCOME TO MALLORA</small>
-<h1>The World at Your Doorstep.</h1>
-<p>Discover amazing products, explore different stores and experience shopping without borders.</p>
-<a href="#products" class="btn">Explore Shopping</a>
-</div>
-</section>
+  <section id="dashboard" class="hidden">
+    <div class="panel">
+      <h2>Welcome to MALLORA</h2>
+      <p>Manage sellers and products from one dashboard.</p>
+      <div id="mainMessage" class="message"></div>
+    </div>
 
-<section class="section" id="categories">
-<div class="section-heading">
-<h2>Explore Our Categories</h2>
-<p>Discover something special in every department.</p>
-</div>
-<div class="categories" id="categoryList">
-<div class="empty-state">Loading categories...</div>
-</div>
-</section>
+    <div class="stats">
+      <div class="stat">Total Stores<strong id="totalStores">0</strong></div>
+      <div class="stat">Pending Stores<strong id="pendingStores">0</strong></div>
+      <div class="stat">Active Stores<strong id="activeStores">0</strong></div>
+    </div>
 
-<section class="section" id="products">
-<div class="section-heading">
-<h2>Featured Products</h2>
-<p>Discover products from MALLORA sellers around the world.</p>
-</div>
-<div class="products" id="productList">
-<div class="empty-state">Loading products...</div>
-</div>
-</section>
+    <section class="panel">
+      <h2>Seller Applications</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Store</th><th>Country</th><th>Status</th><th>Created</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="storesTable">
+            <tr><td colspan="5">Loading stores...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-<section class="section features" id="features">
-<div class="feature">
-<h3>🌍 Worldwide Marketplace</h3>
-<p>Discover products and sellers from different countries.</p>
-</div>
-<div class="feature">
-<h3>🏪 Multiple Stores</h3>
-<p>Explore independent businesses in one marketplace.</p>
-</div>
-<div class="feature">
-<h3>🔒 Secure Shopping</h3>
-<p>Our goal is to build a safe and reliable shopping experience.</p>
-</div>
-</section>
+    <section class="panel" id="productsSection">
+      <h2>Ikenna Global Store – Product Manager</h2>
+      <p>Add and manage products in your store.</p>
+      <div id="productMessage" class="message"></div>
 
-<section class="vendor" id="vendor">
-<h2>Own a Business?</h2>
-<p>Bring your products to MALLORA and reach customers worldwide.</p>
-<button class="btn" id="sellerButton" type="button">Become a Seller</button>
-</section>
+      <form id="productForm">
+        <input type="hidden" id="productId">
 
-<footer>
-<div class="footer-grid">
-<div><h3>MALLORA</h3><p>Your world of shopping, all in one place.</p></div>
-<div><h3>Explore</h3><a href="#categories">Categories</a><a href="#products">Products</a><a href="#features">About Us</a></div>
-<div><h3>For Sellers</h3><a href="#vendor">Become a Seller</a></div>
-<div><h3>Customer Service</h3><a href="mailto:support@mallora.com">Contact Us</a></div>
-</div>
-<div class="copyright">© 2026 MALLORA. All rights reserved.</div>
-</footer>
+        <div class="form-grid">
+          <div class="full">
+            <label>Product Name *</label>
+            <input id="productName" type="text" maxlength="180" required placeholder="Enter product name">
+          </div>
 
-<div class="notice" id="notice" role="status"></div>
+          <div class="full">
+            <label>Description</label>
+            <textarea id="productDescription" placeholder="Describe your product"></textarea>
+          </div>
 
-<!-- CUSTOMER ACCOUNT WINDOW -->
-<div class="modal" id="accountModal">
-<div class="modal-box">
-<button class="close-btn" id="closeAccount" type="button" aria-label="Close">&times;</button>
+          <div>
+            <label>Price (₦) *</label>
+            <input id="productPrice" type="number" min="0" step="0.01" required placeholder="e.g. 25000">
+          </div>
 
-<h2 id="accountTitle">Welcome to MALLORA</h2>
+          <div>
+            <label>Category *</label>
+            <select id="productCategory" required>
+              <option value="">Loading categories...</option>
+            </select>
+          </div>
 
-<form id="accountForm">
-<input id="fullName" type="text" placeholder="Full name" autocomplete="name" hidden>
-<input id="country" type="text" placeholder="Country" autocomplete="country-name" hidden>
-<input id="email" type="email" placeholder="Email address" autocomplete="email" required>
-<input id="password" type="password" placeholder="Password (minimum 6 characters)" autocomplete="current-password" minlength="6" required>
-<button class="btn" id="accountSubmit" type="submit">Sign In</button>
-</form>
+          <div>
+            <label>Stock Quantity *</label>
+            <input id="productStock" type="number" min="0" step="1" value="0" required>
+          </div>
 
-<p class="modal-note" id="accountSwitch">
-New to MALLORA?
-<a href="#" id="switchToSignup">Create an account</a>
-</p>
-<p class="status" id="accountStatus"></p>
-</div>
-</div>
+          <div>
+            <label>Product Status</label>
+            <select id="productStatus">
+              <option value="draft">Draft – Not visible publicly</option>
+              <option value="published">Published – Visible in store</option>
+            </select>
+          </div>
 
-<!-- SELLER APPLICATION WINDOW -->
-<div class="modal" id="sellerModal">
-<div class="modal-box">
-<button class="close-btn" id="closeSeller" type="button" aria-label="Close">&times;</button>
-<h2>Open Your MALLORA Store</h2>
-<p class="modal-note">Submit your store details for approval.</p>
+          <div class="full">
+            <label for="productPhoto">Product Photo</label>
+            <input id="productPhoto" type="file" accept="image/png,image/jpeg,image/webp">
+            <p class="hint">Choose a photo from your phone gallery. JPG, PNG or WEBP; maximum size 5 MB.</p>
 
-<form id="sellerForm">
-<input id="storeName" type="text" placeholder="Store name" required>
-<input id="storeCountry" type="text" placeholder="Store country" required>
-<input id="storeDescription" type="text" placeholder="Short store description">
-<button class="btn" id="sellerSubmit" type="submit">Submit Application</button>
-</form>
-<p class="status" id="sellerStatus"></p>
-</div>
+            <div class="photo-preview-wrap">
+              <img id="photoPreview" class="photo-preview hidden" alt="Selected product photo preview">
+              <div class="photo-actions">
+                <button type="button" id="removePhotoBtn" class="muted hidden">Remove Photo</button>
+                <span id="photoStatus" class="hint">No new photo selected.</span>
+              </div>
+            </div>
+
+            <label class="check-line" id="clearPhotoLine" style="display:none">
+              <input type="checkbox" id="clearExistingPhoto">
+              Remove the current product photo when saving
+            </label>
+          </div>
+
+          <div class="full">
+            <label>Or use an Image URL (optional)</label>
+            <input id="productImage" type="url" placeholder="https://example.com/product-image.jpg">
+            <p class="hint">You can upload from your phone above, or paste a publicly accessible image link here.</p>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <button type="submit" class="primary" id="saveProductBtn">Add Product</button>
+          <button type="button" class="muted hidden" id="cancelEditBtn">Cancel Edit</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Your Products</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTable">
+            <tr><td colspan="7">Loading products...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+</main>
+
+<div class="bottom-store-link">
+  <a class="store-link" href="index.html">Back to Main Page</a>
 </div>
 
 <script>
-(function () {
-"use strict";
+  const SUPABASE_URL = "https://njyrphzewgtybtxxkvwk.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_EmUH_iUEsDdR5e8mwUZuRQ_xXnMoSsh";
+  const STORE_ID = "3f99b588-709a-4194-904d-2ca0bdea5fae";
+  const STORAGE_BUCKET = "product-images";
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
-/* MALLORA SUPABASE CONNECTION */
-const SUPABASE_URL = "https://njyrphzewgtybtxxkvwk.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EmUH_iUEsDdR5e8mwUZuRQ_xXnMoSsh";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const $ = id => document.getElementById(id);
+  let currentUser = null;
+  let categories = [];
+  let products = [];
+  let selectedPhoto = null;
+  let previewObjectUrl = null;
+  let currentProductImageUrl = null;
 
-let db = null;
-let currentUser = null;
-let accountMode = "signin";
-let cartCount = 0;
-let allProducts = [];
+  const $ = id => document.getElementById(id);
 
-function showNotice(message) {
-  const notice = $("notice");
-  notice.textContent = message;
-  notice.style.display = "block";
-  window.clearTimeout(showNotice.timer);
-  showNotice.timer = window.setTimeout(() => {
-    notice.style.display = "none";
-  }, 3500);
-}
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  })[char]);
-}
-
-function openModal(id) {
-  $(id).classList.add("show");
-}
-
-function closeModal(id) {
-  $(id).classList.remove("show");
-}
-
-function setAccountMode(mode) {
-  accountMode = mode;
-  const signup = mode === "signup";
-
-  $("accountTitle").textContent = signup
-    ? "Create Your MALLORA Account"
-    : "Welcome Back";
-
-  $("accountSubmit").textContent = signup
-    ? "Create Account"
-    : "Sign In";
-
-  $("fullName").hidden = !signup;
-  $("country").hidden = !signup;
-
-  $("fullName").required = signup;
-  $("country").required = signup;
-
-  $("password").autocomplete = signup
-    ? "new-password"
-    : "current-password";
-
-  $("accountSwitch").innerHTML = signup
-    ? 'Already have an account? <a href="#" id="switchToSignin">Sign in</a>'
-    : 'New to MALLORA? <a href="#" id="switchToSignup">Create an account</a>';
-
-  $("accountStatus").textContent = "";
-
-  const switchLink = signup ? $("switchToSignin") : $("switchToSignup");
-
-  switchLink.addEventListener("click", event => {
-    event.preventDefault();
-    setAccountMode(signup ? "signin" : "signup");
-  });
-}
-
-function openAccount() {
-  if (!db) {
-    showNotice("The account service is not available. Refresh the page and try again.");
-    return;
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[char]));
   }
 
-  if (currentUser) {
-    showNotice("You are signed in as " + currentUser.email);
-    return;
+  function showMessage(id, message, isError = false) {
+    const box = $(id);
+    box.textContent = message;
+    box.className = "message " + (isError ? "error" : "notice");
+    box.style.display = "block";
   }
 
-  $("accountForm").reset();
-  setAccountMode("signin");
-  openModal("accountModal");
-}
-
-function updateAccountUI(user) {
-  currentUser = user || null;
-
-  $("accountButton").textContent = user
-    ? "My Account"
-    : "Sign In";
-
-  $("signOutButton").hidden = !user;
-}
-
-/* SIGN IN AND REGISTRATION */
-async function handleAccountSubmit(event) {
-  event.preventDefault();
-
-  if (!db) {
-    $("accountStatus").textContent = "Supabase is not connected. Please refresh the page.";
-    return;
+  function hideMessage(id) {
+    $(id).style.display = "none";
   }
 
-  const email = $("email").value.trim();
-  const password = $("password").value;
-  const submit = $("accountSubmit");
+  function naira(amount) {
+    return "₦" + Number(amount || 0).toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
 
-  submit.disabled = true;
-  $("accountStatus").textContent = "Please wait...";
+  function revokePreviewUrl() {
+    if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
+  }
 
-  try {
-    if (accountMode === "signup") {
-      const fullName = $("fullName").value.trim();
-      const country = $("country").value.trim();
+  function displayPhotoPreview(url, statusText) {
+    const preview = $("photoPreview");
 
-      const { data, error } = await db.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: {
-            full_name: fullName,
-            country: country
-          }
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.session) {
-        closeModal("accountModal");
-        showNotice("Your MALLORA account has been created.");
-      } else {
-        $("accountStatus").textContent =
-          "Registration received. Please check your email to confirm your account, then sign in.";
-      }
-
+    if (url) {
+      preview.src = url;
+      preview.classList.remove("hidden");
     } else {
-      const { error } = await db.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-      if (error) throw error;
-
-      closeModal("accountModal");
-      showNotice("Welcome back to MALLORA!");
+      preview.removeAttribute("src");
+      preview.classList.add("hidden");
     }
 
-  } catch (error) {
-    $("accountStatus").textContent = error.message || "Something went wrong.";
-  } finally {
-    submit.disabled = false;
-  }
-}
-
-async function handleSignOut() {
-  if (!db) return;
-
-  const { error } = await db.auth.signOut();
-
-  if (error) {
-    showNotice(error.message);
-  } else {
-    showNotice("You have signed out.");
-  }
-}
-
-/* LOAD MARKETPLACE CATEGORIES */
-async function loadCategories() {
-  const container = $("categoryList");
-
-  const { data, error } = await db
-    .from("categories")
-    .select("id,name")
-    .order("name");
-
-  if (error) {
-    console.error("Category loading error:", error);
-    container.innerHTML =
-      '<div class="empty-state">Categories could not be loaded. Please refresh.</div>';
-    return;
+    $("photoStatus").textContent = statusText;
+    $("removePhotoBtn").classList.toggle("hidden", !url);
   }
 
-  if (!data || !data.length) {
-    container.innerHTML =
-      '<div class="empty-state">Categories will appear here soon.</div>';
-    return;
+  function clearNewPhotoSelection() {
+    selectedPhoto = null;
+    $("productPhoto").value = "";
+    revokePreviewUrl();
+
+    if (currentProductImageUrl && !$("clearExistingPhoto").checked) {
+      displayPhotoPreview(currentProductImageUrl, "Current product photo");
+    } else {
+      displayPhotoPreview("", "No photo selected.");
+    }
   }
 
-  container.innerHTML = data.map(category => `
-    <button class="category" type="button"
-      data-category-id="${escapeHTML(category.id)}">
-      <h3>${escapeHTML(category.name)}</h3>
-    </button>
-  `).join("");
-}
+  $("productPhoto").addEventListener("change", () => {
+    hideMessage("productMessage");
 
-/* LOAD PUBLISHED PRODUCTS */
-async function loadProducts() {
-  const container = $("productList");
+    const file = $("productPhoto").files[0];
 
-  const { data, error } = await db
-    .from("products")
-    .select("id,name,description,price,currency,image_url,category_id,stores(store_name)")
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
+    if (!file) {
+      clearNewPhotoSelection();
+      return;
+    }
 
-  if (error) {
-    console.error("Product loading error:", error);
-    container.innerHTML =
-      '<div class="empty-state">Products could not be loaded yet.</div>';
-    return;
-  }
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
-  allProducts = data || [];
-  renderProducts(allProducts);
-}
+    if (!allowedTypes.includes(file.type)) {
+      $("productPhoto").value = "";
+      selectedPhoto = null;
+      showMessage("productMessage", "Choose a JPG, PNG or WEBP image.", true);
+      return;
+    }
 
-function renderProducts(products) {
-  const container = $("productList");
+    if (file.size > MAX_IMAGE_SIZE) {
+      $("productPhoto").value = "";
+      selectedPhoto = null;
+      showMessage("productMessage", "That photo is larger than 5 MB. Choose a smaller image.", true);
+      return;
+    }
 
-  if (!products.length) {
-    container.innerHTML =
-      '<div class="empty-state">No products are available yet. Check back soon!</div>';
-    return;
-  }
+    selectedPhoto = file;
+    revokePreviewUrl();
+    previewObjectUrl = URL.createObjectURL(file);
+    $("clearExistingPhoto").checked = false;
 
-  container.innerHTML = products.map(product => {
-    const image = product.image_url
-      ? escapeHTML(product.image_url)
-      : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500";
+    displayPhotoPreview(previewObjectUrl, file.name + " — ready to upload");
+  });
 
-    const store = Array.isArray(product.stores)
-      ? product.stores[0]
-      : product.stores;
+  $("removePhotoBtn").addEventListener("click", () => {
+    if (selectedPhoto) {
+      clearNewPhotoSelection();
+      return;
+    }
 
-    return `
-      <div class="product">
-        <img src="${image}" alt="${escapeHTML(product.name)}" loading="lazy">
-        <div class="product-info">
-          <h3>${escapeHTML(product.name)}</h3>
-          <p class="price">
-            ${escapeHTML(product.currency)} ${Number(product.price).toLocaleString()}
-          </p>
-          <p class="modal-note">${escapeHTML(store?.store_name || "MALLORA seller")}</p>
-          <button type="button" data-add-product="${escapeHTML(product.id)}">
-            Add to Cart
-          </button>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
+    if (currentProductImageUrl) {
+      $("clearExistingPhoto").checked = true;
+      $("productImage").value = "";
+      displayPhotoPreview("", "Current photo will be removed when you save.");
+    }
+  });
 
-function filterCategory(categoryId) {
-  const matches = allProducts.filter(product =>
-    product.category_id === categoryId
-  );
+  $("clearExistingPhoto").addEventListener("change", () => {
+    if ($("clearExistingPhoto").checked) {
+      selectedPhoto = null;
+      $("productPhoto").value = "";
+      $("productImage").value = "";
+      revokePreviewUrl();
+      displayPhotoPreview("", "Current photo will be removed when you save.");
+    } else if (currentProductImageUrl) {
+      $("productImage").value = currentProductImageUrl;
+      displayPhotoPreview(currentProductImageUrl, "Current product photo");
+    }
+  });
 
-  renderProducts(matches);
-  $("products").scrollIntoView({ behavior: "smooth" });
-}
+  async function uploadProductPhoto(file) {
+    const extension = file.type === "image/png" ? "png" :
+      file.type === "image/webp" ? "webp" : "jpg";
 
-function addToCart(productId) {
-  cartCount++;
-  $("cartCount").textContent = cartCount;
-  showNotice("Added to your demo cart. Checkout is not enabled yet.");
-}
+    const filePath = STORE_ID + "/" + crypto.randomUUID() + "." + extension;
 
-/* PRODUCT SEARCH */
-function handleSearch(event) {
-  event.preventDefault();
-
-  const query = $("searchInput").value.trim().toLowerCase();
-
-  if (!query) {
-    renderProducts(allProducts);
-    return;
-  }
-
-  const matches = allProducts.filter(product =>
-    (product.name || "").toLowerCase().includes(query) ||
-    (product.description || "").toLowerCase().includes(query)
-  );
-
-  renderProducts(matches);
-  $("products").scrollIntoView({ behavior: "smooth" });
-}
-
-/* SELLER APPLICATION */
-function openSeller() {
-  if (!currentUser) {
-    openAccount();
-    showNotice("Please create an account or sign in before applying as a seller.");
-    return;
-  }
-
-  $("sellerForm").reset();
-  $("sellerStatus").textContent = "";
-  openModal("sellerModal");
-}
-
-async function handleSellerSubmit(event) {
-  event.preventDefault();
-
-  if (!currentUser) {
-    closeModal("sellerModal");
-    openAccount();
-    showNotice("Please sign in first.");
-    return;
-  }
-
-  const submit = $("sellerSubmit");
-  submit.disabled = true;
-  $("sellerStatus").textContent = "Submitting your application...";
-
-  try {
-    const store = {
-      owner_id: currentUser.id,
-      store_name: $("storeName").value.trim(),
-      country: $("storeCountry").value.trim(),
-      description: $("storeDescription").value.trim(),
-      status: "pending"
-    };
-
-    const { error } = await db
-      .from("stores")
-      .insert(store);
-
-    if (error) throw error;
-
-    $("sellerStatus").textContent =
-      "Your application has been submitted. Your store is pending MALLORA approval.";
-
-    $("sellerForm").reset();
-    showNotice("Seller application submitted successfully.");
-
-  } catch (error) {
-    $("sellerStatus").textContent = error.message || "Could not submit application.";
-  } finally {
-    submit.disabled = false;
-  }
-}
-
-/* START THE WEBSITE */
-async function initializeMallora() {
-  if (!window.supabase || !window.supabase.createClient) {
-    showNotice("The account service could not load. Check your internet connection and refresh.");
-    $("categoryList").innerHTML =
-      '<div class="empty-state">Please refresh to load the marketplace.</div>';
-    $("productList").innerHTML =
-      '<div class="empty-state">Please refresh to load products.</div>';
-    return;
-  }
-
-  try {
-    db = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
-    $("accountButton").addEventListener("click", openAccount);
-    $("signOutButton").addEventListener("click", handleSignOut);
-    $("accountForm").addEventListener("submit", handleAccountSubmit);
-    $("sellerButton").addEventListener("click", openSeller);
-    $("sellerForm").addEventListener("submit", handleSellerSubmit);
-    $("searchForm").addEventListener("submit", handleSearch);
-
-    $("closeAccount").addEventListener("click", () => closeModal("accountModal"));
-    $("closeSeller").addEventListener("click", () => closeModal("sellerModal"));
-
-    $("switchToSignup").addEventListener("click", event => {
-      event.preventDefault();
-      setAccountMode("signup");
-    });
-
-    $("categoryList").addEventListener("click", event => {
-      const button = event.target.closest("[data-category-id]");
-      if (button) filterCategory(button.dataset.categoryId);
-    });
-
-    $("productList").addEventListener("click", event => {
-      const button = event.target.closest("[data-add-product]");
-      if (button) addToCart(button.dataset.addProduct);
-    });
-
-    document.querySelectorAll(".modal").forEach(modal => {
-      modal.addEventListener("click", event => {
-        if (event.target === modal) {
-          modal.classList.remove("show");
-        }
+    const { error: uploadError } = await db.storage
+      .from(STORAGE_BUCKET)
+      .upload(filePath, file, {
+        contentType: file.type,
+        cacheControl: "3600",
+        upsert: false
       });
-    });
 
-    db.auth.onAuthStateChange((_event, session) => {
-      updateAccountUI(session?.user || null);
-    });
+    if (uploadError) throw uploadError;
 
-    const { data, error } = await db.auth.getSession();
-    if (error) throw error;
+    const { data } = db.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(filePath);
 
-    updateAccountUI(data.session?.user || null);
+    if (!data || !data.publicUrl) {
+      throw new Error("The photo uploaded, but its public URL could not be created.");
+    }
 
-    await Promise.all([
-      loadCategories(),
-      loadProducts()
-    ]);
-
-  } catch (error) {
-    console.error("MALLORA initialization error:", error);
-    showNotice("MALLORA could not initialize. Refresh the page and try again.");
+    return data.publicUrl;
   }
-}
 
-initializeMallora();
+  async function checkAdmin() {
+    const { data, error } = await db.auth.getUser();
 
-})();
+    if (error || !data.user) {
+      showLogin();
+      return;
+    }
+
+    if (data.user.app_metadata?.role !== "admin") {
+      await db.auth.signOut();
+      showLogin();
+      showMessage("loginMessage", "This account does not have administrator access.", true);
+      return;
+    }
+
+    currentUser = data.user;
+
+    $("loginPanel").classList.add("hidden");
+    $("dashboard").classList.remove("hidden");
+    $("logoutBtn").classList.remove("hidden");
+
+    await loadStores();
+    await loadCategories();
+    await loadProducts();
+  }
+
+  function showLogin() {
+    currentUser = null;
+    $("dashboard").classList.add("hidden");
+    $("logoutBtn").classList.add("hidden");
+    $("loginPanel").classList.remove("hidden");
+  }
+
+  $("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    hideMessage("loginMessage");
+
+    const button = event.submitter;
+    button.disabled = true;
+    button.textContent = "Signing in...";
+
+    const { error } = await db.auth.signInWithPassword({
+      email: $("email").value.trim(),
+      password: $("password").value
+    });
+
+    button.disabled = false;
+    button.textContent = "Sign In";
+
+    if (error) {
+      showMessage("loginMessage", error.message, true);
+      return;
+    }
+
+    await checkAdmin();
+  });
+
+  $("logoutBtn").addEventListener("click", async () => {
+    await db.auth.signOut();
+    showLogin();
+  });
+
+  async function loadStores() {
+    const { data, error } = await db
+      .from("stores")
+      .select("id,store_name,country,status,created_at")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      showMessage("mainMessage", "Could not load stores: " + error.message, true);
+      return;
+    }
+
+    const rows = data || [];
+
+    $("totalStores").textContent = rows.length;
+    $("pendingStores").textContent = rows.filter(x => x.status === "pending").length;
+    $("activeStores").textContent = rows.filter(x => x.status === "active").length;
+
+    $("storesTable").innerHTML = rows.length ? rows.map(store => {
+      let nextStatus = "";
+      let buttonText = "";
+      let buttonClass = "primary";
+
+      if (store.status === "pending") {
+        nextStatus = "active";
+        buttonText = "Approve";
+        buttonClass = "success";
+      } else if (store.status === "active") {
+        nextStatus = "suspended";
+        buttonText = "Suspend";
+        buttonClass = "danger";
+      } else if (store.status === "suspended") {
+        nextStatus = "active";
+        buttonText = "Reactivate";
+        buttonClass = "success";
+      }
+
+      return `<tr>
+        <td>${escapeHTML(store.store_name)}</td>
+        <td>${escapeHTML(store.country)}</td>
+        <td>${escapeHTML(store.status)}</td>
+        <td>${new Date(store.created_at).toLocaleDateString()}</td>
+        <td>${nextStatus ? `<button class="${buttonClass}" data-store="${store.id}" data-status="${nextStatus}">${buttonText}</button>` : "—"}</td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="5">No stores found.</td></tr>`;
+  }
+
+  $("storesTable").addEventListener("click", async event => {
+    const button = event.target.closest("button[data-store]");
+    if (!button) return;
+
+    button.disabled = true;
+
+    const { error } = await db.from("stores")
+      .update({ status: button.dataset.status })
+      .eq("id", button.dataset.store);
+
+    if (error) {
+      showMessage("mainMessage", "Store update failed: " + error.message, true);
+    } else {
+      showMessage("mainMessage", "Store status updated successfully.");
+      await loadStores();
+    }
+  });
+
+  async function loadCategories() {
+    const { data, error } = await db
+      .from("categories")
+      .select("id,name")
+      .order("name", { ascending: true });
+
+    if (error) {
+      showMessage("productMessage", "Could not load categories: " + error.message, true);
+      $("productCategory").innerHTML = `<option value="">Category loading failed</option>`;
+      return;
+    }
+
+    categories = data || [];
+
+    $("productCategory").innerHTML =
+      `<option value="">Choose a category</option>` +
+      categories.map(category =>
+        `<option value="${category.id}">${escapeHTML(category.name)}</option>`
+      ).join("");
+  }
+
+  async function loadProducts() {
+    $("productsTable").innerHTML = `<tr><td colspan="7">Loading products...</td></tr>`;
+
+    const { data, error } = await db
+      .from("products")
+      .select("*")
+      .eq("store_id", STORE_ID)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      $("productsTable").innerHTML =
+        `<tr><td colspan="7">Could not load products.</td></tr>`;
+
+      showMessage("productMessage", "Product loading failed: " + error.message, true);
+      return;
+    }
+
+    products = data || [];
+
+    if (!products.length) {
+      $("productsTable").innerHTML =
+        `<tr><td colspan="7">No products added yet. Use the form above to add your first product.</td></tr>`;
+      return;
+    }
+
+    $("productsTable").innerHTML = products.map(product => {
+      const category = categories.find(c => c.id === product.category_id);
+
+      const image = product.image_url
+        ? `<img class="product-image" src="${escapeHTML(product.image_url)}" alt="${escapeHTML(product.name)}" onerror="this.style.display='none'">`
+        : "—";
+
+      return `<tr>
+        <td>${image}</td>
+        <td>${escapeHTML(product.name)}</td>
+        <td>${escapeHTML(category?.name || "Uncategorised")}</td>
+        <td>${naira(product.price)}</td>
+        <td>${Number(product.stock)}</td>
+        <td>${escapeHTML(product.status)}</td>
+        <td>
+          <button class="muted" data-edit="${product.id}">Edit</button>
+          <button class="primary" data-toggle="${product.id}" data-next="${product.status === "published" ? "draft" : "published"}">
+            ${product.status === "published" ? "Unpublish" : "Publish"}
+          </button>
+          <button class="danger" data-delete="${product.id}">Delete</button>
+        </td>
+      </tr>`;
+    }).join("");
+  }
+
+  function resetProductForm() {
+    $("productForm").reset();
+    $("productId").value = "";
+    $("productStock").value = 0;
+    $("productStatus").value = "draft";
+    $("productImage").value = "";
+
+    selectedPhoto = null;
+    currentProductImageUrl = null;
+    $("clearExistingPhoto").checked = false;
+    $("clearPhotoLine").style.display = "none";
+
+    revokePreviewUrl();
+    displayPhotoPreview("", "No new photo selected.");
+
+    $("saveProductBtn").textContent = "Add Product";
+    $("cancelEditBtn").classList.add("hidden");
+  }
+
+  $("cancelEditBtn").addEventListener("click", resetProductForm);
+
+  $("productForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    hideMessage("productMessage");
+
+    if (!currentUser) {
+      showMessage("productMessage", "Please sign in again.", true);
+      return;
+    }
+
+    const name = $("productName").value.trim();
+    const price = Number($("productPrice").value);
+    const stock = Number($("productStock").value);
+    const categoryId = $("productCategory").value;
+
+    if (!name || !categoryId || !Number.isFinite(price) || price < 0 ||
+        !Number.isInteger(stock) || stock < 0) {
+      showMessage("productMessage", "Please enter a valid name, category, price and stock quantity.", true);
+      return;
+    }
+
+    const productId = $("productId").value;
+    const button = $("saveProductBtn");
+
+    button.disabled = true;
+    button.textContent = selectedPhoto
+      ? "Uploading photo..."
+      : (productId ? "Saving changes..." : "Adding product...");
+
+    try {
+      let imageUrl = currentProductImageUrl;
+
+      if ($("clearExistingPhoto").checked) {
+        imageUrl = null;
+      }
+
+      const pastedUrl = $("productImage").value.trim();
+
+      if (pastedUrl) {
+        imageUrl = pastedUrl;
+      }
+
+      if (selectedPhoto) {
+        imageUrl = await uploadProductPhoto(selectedPhoto);
+      }
+
+      const payload = {
+        store_id: STORE_ID,
+        category_id: categoryId,
+        name,
+        description: $("productDescription").value.trim(),
+        price,
+        currency: "NGN",
+        stock,
+        image_url: imageUrl,
+        status: $("productStatus").value
+      };
+
+      button.textContent = productId ? "Saving product..." : "Adding product...";
+
+      let result;
+
+      if (productId) {
+        result = await db.from("products")
+          .update(payload)
+          .eq("id", productId)
+          .eq("store_id", STORE_ID);
+      } else {
+        result = await db.from("products").insert(payload);
+      }
+
+      if (result.error) throw result.error;
+
+      showMessage("productMessage", productId
+        ? "Product updated successfully."
+        : "Product added successfully.");
+
+      resetProductForm();
+      await loadProducts();
+
+    } catch (error) {
+      showMessage(
+        "productMessage",
+        "Could not save product: " + (error.message || "Unknown error"),
+        true
+      );
+    } finally {
+      button.disabled = false;
+      button.textContent = $("productId").value ? "Save Changes" : "Add Product";
+    }
+  });
+
+  $("productsTable").addEventListener("click", async event => {
+    const editButton = event.target.closest("button[data-edit]");
+    const toggleButton = event.target.closest("button[data-toggle]");
+    const deleteButton = event.target.closest("button[data-delete]");
+
+    if (editButton) {
+      const product = products.find(p => p.id === editButton.dataset.edit);
+      if (!product) return;
+
+      resetProductForm();
+
+      $("productId").value = product.id;
+      $("productName").value = product.name || "";
+      $("productDescription").value = product.description || "";
+      $("productPrice").value = product.price;
+      $("productStock").value = product.stock;
+      $("productCategory").value = product.category_id || "";
+      $("productStatus").value = product.status;
+
+      currentProductImageUrl = product.image_url || null;
+      $("productImage").value = product.image_url || "";
+
+      $("clearPhotoLine").style.display = currentProductImageUrl ? "flex" : "none";
+
+      if (currentProductImageUrl) {
+        displayPhotoPreview(currentProductImageUrl, "Current product photo");
+      }
+
+      $("saveProductBtn").textContent = "Save Changes";
+      $("cancelEditBtn").classList.remove("hidden");
+      $("productsSection").scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    if (toggleButton) {
+      toggleButton.disabled = true;
+
+      const { error } = await db.from("products")
+        .update({ status: toggleButton.dataset.next })
+        .eq("id", toggleButton.dataset.toggle)
+        .eq("store_id", STORE_ID);
+
+      if (error) {
+        showMessage("productMessage", "Status update failed: " + error.message, true);
+      } else {
+        showMessage("productMessage", "Product status changed to " + toggleButton.dataset.next + ".");
+        await loadProducts();
+      }
+
+      return;
+    }
+
+    if (deleteButton) {
+      const product = products.find(p => p.id === deleteButton.dataset.delete);
+      if (!product) return;
+
+      if (!confirm(`Delete "${product.name}" permanently? This cannot be undone.`)) return;
+
+      deleteButton.disabled = true;
+
+      const { error } = await db.from("products")
+        .delete()
+        .eq("id", product.id)
+        .eq("store_id", STORE_ID);
+
+      if (error) {
+        showMessage("productMessage", "Delete failed: " + error.message, true);
+      } else {
+        showMessage("productMessage", "Product deleted successfully.");
+
+        if ($("productId").value === product.id) {
+          resetProductForm();
+        }
+
+        await loadProducts();
+      }
+    }
+  });
+
+  db.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_OUT" || !session) {
+      showLogin();
+    }
+  });
+
+  checkAdmin();
 </script>
-
 </body>
 </html>
